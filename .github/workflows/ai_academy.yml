@@ -12,9 +12,8 @@ jobs:
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v4
-      - name: "Accelerated AI Content Generation"
+      - name: "Automated AI Content & Dependency Manager"
         env:
-          # Using your exact secret names from 1000246517.jpg
           API_KEY: ${{ secrets.GEMINI_API_KEY2 }}
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
@@ -28,11 +27,11 @@ jobs:
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
               if not next_topic: return
 
-              # STRATEGY: 2-3 concepts daily. Force the very first one to show it works.
+              # Strategic logic for 2-3 concepts daily
               if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70:
-                  print('Human behavior: taking a break.'); return
+                  print('Human behavior simulation: skipping session.'); return
 
-              prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
+              prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]. Ensure code is Streamlit compatible.'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
               for _ in range(3):
@@ -40,8 +39,7 @@ jobs:
                       r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
                       text = r.json()['candidates'][0]['content']['parts'][0]['text']
                       break
-                  except Exception as e:
-                      print(f'API Error: {e}'); time.sleep(10)
+                  except: time.sleep(10)
               else: return
 
               def get_tag(tag):
@@ -50,14 +48,30 @@ jobs:
 
               title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
               os.makedirs(next_topic, exist_ok=True)
-              link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
-
+              
+              # Save main code and documentation
               open(f'{next_topic}/main.py', 'w').write(code)
-              open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
+              link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
+              open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE]({link})\n\n---\n\n{lesson}')
 
+              # --- AUTOMATIC DEPENDENCY INSTALLER ---
+              # This block scans the AI code for 'import' or 'from' and updates requirements.txt
+              found_libs = re.findall(r'^(?:import|from)\s+([a-zA-Z0-9_]+)', code, re.MULTILINE)
+              standard_libs = {'os', 'sys', 're', 'time', 'random', 'json', 'math', 'subprocess', 'datetime', 'base64'}
+              reqs = {'streamlit', 'google-generativeai'}
+              for lib in found_libs:
+                  if lib not in standard_libs:
+                      # Map common import names to pip names
+                      pkg = 'scikit-learn' if lib == 'sklearn' else lib
+                      reqs.add(pkg)
+              
+              with open('requirements.txt', 'w') as f:
+                  f.write('\n'.join(sorted(reqs)))
+
+              # Syllabus update logic
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
               for topic in curriculum:
-                  if os.path.exists(topic):
+              if os.path.exists(topic):
                       try: 
                           lns = open(f'{topic}/LEARN.md').readlines()
                           d = lns[2].strip().replace(\"**\", \"\") if len(lns)>2 else 'Explore.'
@@ -66,7 +80,7 @@ jobs:
 
               open('README.md', 'w').write(toc)
               
-              # GITHUB PUSH WITH YOUR TOKEN
+              # Git push using your specific MY_GITHUB_TOKEN
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
