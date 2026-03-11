@@ -24,43 +24,59 @@ jobs:
               user = 'Ganesha369'
               curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
               
-              next_topic = next((t for t in curr if not os.path.exists(t)), None)
+              next_topic = None
+              for t in curr:
+                  if not os.path.exists(t):
+                      next_topic = t; break
+                  try:
+                      if 'Pending' in open(f'{t}/LEARN.md').read():
+                          next_topic = t; break
+                  except: pass
+              
               if not next_topic: return
               if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70: return
 
-              prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]. Ensure code is Streamlit compatible.'
+              prompt = f'Write a Google-level lesson for {next_topic}. Use tags: [TITLE]..[/TITLE], [DESC]Write a one-sentence high-level summary here[/DESC], [LESSON]..[/LESSON], [CODE]..[/CODE]. No placeholders.'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
               r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-              text = r.json()['candidates'][0]['content']['parts'][0]['text']
+              res = r.json()
+              if 'candidates' not in res: return
+              text = res['candidates'][0]['content']['parts'][0]['text']
 
               def get_tag(tag):
                   m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
-                  return m.group(1).strip() if m else 'Pending...'
+                  return m.group(1).strip() if m else 'Technical Lesson'
 
               title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
               os.makedirs(next_topic, exist_ok=True)
-              
               open(f'{next_topic}/main.py', 'w').write(code)
               link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
               open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE]({link})\n\n---\n\n{lesson}')
 
               libs = {'streamlit', 'google-generativeai'}
               if 'tiktoken' in code: libs.add('tiktoken')
-              if 'pandas' in code: libs.add('pandas')
               open('requirements.txt', 'w').write('\n'.join(libs))
 
+              # ALIGNED README GENERATION
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
               for topic in curr:
                   if os.path.exists(topic):
-                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n\n'
+                      d = 'Exploring the fundamentals of modern AI architecture.'
+                      try:
+                          with open(f'{topic}/LEARN.md', 'r') as f:
+                              lines = f.readlines()
+                              if len(lines) > 2: d = lines[2].strip().replace(\"**\", \"\")
+                      except: pass
+                      # Adding the name, description, and the <br> gap
+                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
 
               open('README.md', 'w').write(toc)
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
-              subprocess.run(['git', 'commit', '-m', f'Module: {title}'])
+              subprocess.run(['git', 'commit', '-m', f'Update: {title}'])
               subprocess.run(['git', 'remote', 'set-url', 'origin', f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/AI_Lab.git'])
-              subprocess.run(['git', 'push'])
+              subprocess.run(['git', 'push', '--force'])
           run()
           "
