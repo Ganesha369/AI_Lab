@@ -4,7 +4,7 @@ import os
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="AI Zero-to-Hero Academy", page_icon="🤖", layout="wide")
 
-# --- CUSTOM CSS FOR PROFESSIONAL LOOK ---
+# --- FIXED CSS FOR PROFESSIONAL LOOK ---
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
@@ -16,17 +16,21 @@ st.markdown("""
         border-left: 5px solid #4285F4;
         margin-bottom: 10px;
     }
+    .beginner-note {
+        background-color: #1e2130;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #4285F4;
+        font-size: 0.9em;
+    }
     </style>
-    """, unsafe_allow_status_code=True)
+    """, unsafe_allow_html=True) # FIXED: Changed status_code to html
 
 # --- HEADER ---
 st.title("🤖 AI Zero-to-Hero Academy")
-st.caption("A Google-level curriculum taking you from absolute beginner to AI Architect.")
+st.caption("A beginner-to-architect journey through modern Artificial Intelligence.")
 
 # --- SIDEBAR NAVIGATION ---
-st.sidebar.header("📚 Curriculum Progress")
-
-# Define the full curriculum (must match your Github Action list)
 curriculum = [
     '01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', 
     '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', 
@@ -36,38 +40,44 @@ curriculum = [
     '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration'
 ]
 
-# Detect completed modules
 completed = [t for t in curriculum if os.path.exists(t)]
 progress = len(completed) / len(curriculum)
 
-# Progress Bar
+st.sidebar.header("📊 Your Progress")
 st.sidebar.progress(progress)
-st.sidebar.write(f"Overall Progress: {int(progress*100)}%")
+selected_module = st.sidebar.selectbox("Go to Lesson:", ["🏠 Home Dashboard"] + completed)
 
-# Sidebar Menu
-selected_module = st.sidebar.selectbox("Jump to Module:", ["🏠 Home"] + completed)
-
-# --- MAIN CONTENT ---
-if selected_module == "🏠 Home":
-    st.subheader("Welcome to your AI Lab")
-    st.write("This lab is updated daily by an autonomous AI agent.")
+# --- CONTENT ---
+if selected_module == "🏠 Home Dashboard":
+    st.subheader("Welcome to the Lab, Future Architect!")
+    st.markdown("""
+    This lab is a Living Project. Every day, an AI agent generates new lessons. 
+    If you're a beginner, don't worry—every lesson includes:
+    * 💡 Analogy-first explanations.
+    * 🛠️ Library tooltips (we explain why we use specific code).
+    * 🚀 Interactive playgrounds to test the concepts.
+    """)
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.info(f"✅ Modules Completed: {len(completed)}")
-    with col2:
-        st.warning(f"🚀 Next Topic: {curriculum[len(completed)] if len(completed) < len(curriculum) else 'All Complete!'}")
-
-    st.markdown("### 📖 Syllabus Overview")
+    st.write("---")
+    st.markdown("### 📚 Your Syllabus Status")
     for topic in curriculum:
         status = "✅" if topic in completed else "⏳"
-        st.markdown(f"<div class='module-card'>{status} <b>{topic.replace('-', ' ')}</b></div>", unsafe_allow_status_code=True)
+        st.markdown(f"<div class='module-card'>{status} {topic.replace('-', ' ')}</div>", unsafe_allow_html=True)
 
 else:
-    # Logic to load the specific module's main.py
-    st.button("⬅️ Back to Home", on_click=lambda: st.write("Navigating..."))
+    # BEGINNER FRIENDLY TOOLBAR
+    st.sidebar.markdown("---")
+    st.sidebar.info("💡 Beginner Tip: If the code below looks complex, check the 'LEARN.md' file in GitHub for the full story!")
+    
+    if st.button("⬅️ Back to Main Menu"):
+        st.rerun()
+
+    # LOADING THE PROJECT
     try:
         path = os.path.join(selected_module, "main.py")
-        exec(open(path).read())
+        with open(path, encoding='utf-8') as f:
+            code_content = f.read()
+            # This executes the lesson code inside the Hub
+            exec(code_content)
     except Exception as e:
-        st.error(f"Error loading module: {e}")
+        st.error(f"Error loading lesson: {e}")
