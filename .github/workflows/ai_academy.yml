@@ -2,7 +2,7 @@ name: AI_Zero_to_Hero_Academy
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 * * * *" # Checks every hour for human-like timing
+    - cron: "45 * * * *"
 
 jobs:
   build:
@@ -19,14 +19,12 @@ jobs:
           import requests, os, subprocess, re, random
 
           def run():
-              # 🎲 HUMAN DICE ROLL: 35% chance to commit
+              # 🎲 Human Probability Check
               if random.random() > 0.35:
-                  print('Human is busy today. Skipping...')
+                  print('Human is taking a break.')
                   return
 
               user = 'Ganesha369'
-              
-              # 🗺️ THE A-Z ROADMAP
               curriculum = [
                   '01-Basics-What-is-an-LLM-and-Tokens',
                   '02-Basics-Prompting-and-Temperature',
@@ -43,58 +41,59 @@ jobs:
               ]
 
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
-              if not next_topic: return
+              if not next_topic: 
+                  print('Curriculum finished!')
+                  return
 
-              # 🧠 STAFF ENGINEER PROMPT
-              prompt = f'''Act as a Staff AI Engineer at Google teaching a complete beginner.
-              Topic: {next_topic}.
-              Rule: Explain every tiny detail from the bottom up. 
-              Levels: 0 (Analogy), 1 (Core Logic), 2 (Python Syntax), 3 (SDE Best Practices), 4 (Industry Use).
-              
-              Format:
-              [TITLE]Concept Name[/TITLE]
-              [DESC]A simple 1-sentence summary.[/DESC]
-              [LESSON]Deep dive content with headers.[/LESSON]
-              [CODE]Complete Streamlit Python code with comments.[/CODE]'''
+              prompt = f'Act as a Staff AI Engineer at Google. Explain {next_topic} for a total beginner. Use Levels 0-4 (Analogy to Industry). Format with [TITLE], [DESC], [LESSON], and [CODE] tags.'
 
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               resp = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-              text = resp.json()['candidates'][0]['content']['parts'][0]['text']
+              
+              try:
+                  text = resp.json()['candidates'][0]['content']['parts'][0]['text']
+              except:
+                  print('API Call Failed')
+                  return
 
               def get_tag(tag):
-                  match = re.search(f'\\[{tag}\\](.*?)\\[/{tag}\\]', text, re.DOTALL)
-                  return match.group(1).strip() if match else 'Detail coming soon...'
+                  pattern = f'\\[{tag}\\](.*?)\\[/{tag}\\]'
+                  match = re.search(pattern, text, re.DOTALL)
+                  return match.group(1).strip() if match else 'Content coming soon...'
 
-              title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
+              title = get_tag('TITLE')
+              desc = get_tag('DESC')
+              lesson = get_tag('LESSON')
+              code = get_tag('CODE')
+
               os.makedirs(next_topic, exist_ok=True)
-              
-              # 🚀 LIVE STREAMLIT LINK
               live_link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
-              
-              with open(f'{next_topic}/main.py', 'w') as f: f.write(code)
-              with open(f'{next_topic}/LEARN.md', 'w') as f: 
-                  f.write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({live_link})\n\n---\n\n{lesson}')
 
-              # 📚 SPACED-OUT NEAT README
-              toc = '# 🤖 AI From Scratch: The Zero-to-Hero Academy\n\n'
-              toc += '> A master-level curriculum for absolute beginners.\n\n## 📚 Syllabus\n\n'
+              with open(f'{next_topic}/main.py', 'w') as f:
+                  f.write(code)
+              
+              with open(f'{next_topic}/LEARN.md', 'w') as f:
+                  f.write(f'# {title}\\n\\n{desc}\\n\\n[🚀 RUN LIVE ON STREAMLIT]({live_link})\\n\\n---\\n\\n{lesson}')
+
+              toc = '# 🤖 AI From Scratch Academy\\n\\n## 📚 Syllabus\\n\\n'
               for topic in curriculum:
                   if os.path.exists(topic):
                       topic_desc = 'Lesson content available.'
                       try:
                           with open(f'{topic}/LEARN.md', 'r') as f:
-                          lines = f.readlines()
-                              if len(lines) > 2: topic_desc = lines[2].strip().replace(\"**\", \"\")
-                      except: pass
-                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{topic_desc}*\n\n<br>\n\n'
-
-              with open('README.md', 'w') as f: f.write(toc)
+                              lines = f.readlines()
+                              if len(lines) > 2:
+                                  topic_desc = lines[2].strip().replace(\"**\", \"\")
+                      except:
+                          pass
+                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\\n  *{topic_desc}*\\n\\n<br>\\n\\n'
+                      with open('README.md', 'w') as f:
+                  f.write(toc)
               
-              # 🕵️ HUMAN COMMIT LOGIC
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
-              msgs = [f'Lesson: {title}', f'Update {next_topic}', f'Learning AI: {title}']
+              msgs = [f'Update: {title}', f'Added module {next_topic}', f'Working on {title}']
               subprocess.run(['git', 'commit', '-m', random.choice(msgs)])
               subprocess.run(['git', 'push'])
           run()
