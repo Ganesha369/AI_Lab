@@ -12,36 +12,39 @@ jobs:
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history for better pushing
       - name: "Automated AI Content Generation"
         env:
-          # Using your exact secret names
           API_KEY: ${{ secrets.GEMINI_API_KEY2 }}
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
           python3 -c "
-          import requests, os, subprocess, re, time
+          import requests, os, subprocess, re, sys
 
           def run():
               user = 'Ganesha369'
               repo = 'AI_Lab'
               curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
               
-              # Find the first topic that doesn't exist yet
+              # LOG: Check what exists
+              print(f'Existing folders: {next(os.walk(\".\"))[1]}')
+              
               next_topic = next((t for t in curr if not os.path.exists(t)), None)
               if not next_topic: 
-                  print('All modules complete!'); return
+                  print('Success: All modules already exist.'); return
 
-              # FORCE RUN: Probability removed for this test
-              print(f'Generating content for: {next_topic}')
+              print(f'Attempting to generate: {next_topic}')
 
-              prompt = f'Act as a Google Staff AI Engineer. Write a lesson for {next_topic}. Use tags: [TITLE]..[/TITLE], [DESC]..[/DESC], [LESSON]..[/LESSON], [CODE]..[/CODE].'
+              prompt = f'Write a technical AI lesson for {next_topic}. Use tags: [TITLE]..[/TITLE], [DESC]..[/DESC], [LESSON]..[/LESSON], [CODE]..[/CODE].'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
               r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
               res = r.json()
               
               if 'candidates' not in res:
-                  print(f'API Error: {res}'); return
+                  print(f'CRITICAL API ERROR: {res}')
+                  sys.exit(1) # Force Action to show RED fail if API fails
               
               text = res['candidates'][0]['content']['parts'][0]['text']
 
@@ -50,28 +53,31 @@ jobs:
                   return m.group(1).strip() if m else 'Pending...'
 
               title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
+              
+              # CREATE FILES
               os.makedirs(next_topic, exist_ok=True)
-              open(f'{next_topic}/main.py', 'w').write(code)
-              open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n---\n\n{lesson}')
+              with open(f'{next_topic}/main.py', 'w') as f: f.write(code)
+              with open(f'{next_topic}/LEARN.md', 'w') as f: f.write(f'# {title}\n\n{desc}\n\n{lesson}')
+              
+              print(f'Files created for {next_topic}. Starting Git Push...')
 
-              # Update Syllabus
-              toc = '# 🤖 AI Lab Syllabus\n\n'
-              for t in curr:
-                  if os.path.exists(t):
-                      toc += f'- [{t.replace(\"-\", \" \")}]({t}/LEARN.md)\n\n'
-              open('README.md', 'w').write(toc)
-
-              # THE CRITICAL PUSH BLOCK
-              subprocess.run(['git', 'config', 'user.name', user])
-              subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
-              subprocess.run(['git', 'add', '.'])
-              subprocess.run(['git', 'commit', '-m', f'Add: {next_topic}'])
-              # Remote URL with Token
-              remote_url = f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/{repo}.git'
-              subprocess.run(['git', 'remote', 'set-url', 'origin', remote_url])
-              result = subprocess.run(['git', 'push'], capture_output=True, text=True)
-              print(result.stdout)
-              print(result.stderr)
+              # GIT PUSH COMMANDS
+              try:
+                  subprocess.run(['git', 'config', 'user.name', user], check=True)
+                  subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'], check=True)
+                  subprocess.run(['git', 'add', '--all'], check=True)
+                  subprocess.run(['git', 'commit', '-m', f'Add: {next_topic}'], check=True)
+                  
+                  # Set remote with Token
+                  remote_url = f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/{repo}.git'
+                  subprocess.run(['git', 'remote', 'set-url', 'origin', remote_url], check=True)
+                  
+                  # Push to main
+                  subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                  print('Git push successful!')
+              except Exception as e:
+                  print(f'GIT ERROR: {e}')
+                  sys.exit(1)
 
           run()
           "
