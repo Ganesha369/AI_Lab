@@ -1,3 +1,15 @@
+# Web Framework
 streamlit
+
+# The Brain (AI Models)
 google-generativeai
+openai
 requests
+
+# The Memory (Vector Databases)
+chromadb
+pysqlite3-binary
+
+# The Tools (Data processing)
+pandas
+pypdf2
