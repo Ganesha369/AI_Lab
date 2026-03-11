@@ -7,12 +7,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v4
       - name: "Accelerated AI Content Generation"
         env:
-          API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Using your exact secret names from 1000246517.jpg
+          API_KEY: ${{ secrets.GEMINI_API_KEY2 }}
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
           python3 -c "
@@ -25,10 +28,9 @@ jobs:
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
               if not next_topic: return
 
-              # FORCE START: No dice roll for the very first lesson
-              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens':
-                  if random.random() > 0.70:
-                      print('Human behavior: skipping session.'); return
+              # STRATEGY: 2-3 concepts daily. Force the very first one to show it works.
+              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70:
+                  print('Human behavior: taking a break.'); return
 
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
@@ -38,7 +40,8 @@ jobs:
                       r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
                       text = r.json()['candidates'][0]['content']['parts'][0]['text']
                       break
-                  except: time.sleep(5)
+                  except Exception as e:
+                      print(f'API Error: {e}'); time.sleep(10)
               else: return
 
               def get_tag(tag):
@@ -49,7 +52,6 @@ jobs:
               os.makedirs(next_topic, exist_ok=True)
               link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
 
-              # Flat writing to avoid IndentationErrors seen in previous attempts
               open(f'{next_topic}/main.py', 'w').write(code)
               open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
 
@@ -63,10 +65,13 @@ jobs:
                       toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
 
               open('README.md', 'w').write(toc)
+              
+              # GITHUB PUSH WITH YOUR TOKEN
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
               subprocess.run(['git', 'commit', '-m', f'Module: {title}'])
+              subprocess.run(['git', 'remote', 'set-url', 'origin', f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/AI_Lab.git'])
               subprocess.run(['git', 'push'])
           run()
           "
