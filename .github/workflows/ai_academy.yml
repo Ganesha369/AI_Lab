@@ -2,7 +2,7 @@ name: AI_Zero_to_Hero_Academy
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4,9,15,20 * * *" # 4 Times daily
+    - cron: "0 4,9,15,20 * * *"
 
 jobs:
   build:
@@ -19,11 +19,6 @@ jobs:
           import requests, os, subprocess, re, random, time
 
           def run():
-              # 🎲 Strategic Probability: ~65% success rate for 2-3 posts/day
-              if random.random() > 0.65:
-                  print('Human is busy with SDE work. Skipping this session.')
-                  return
-
               user = 'Ganesha369'
               curriculum = [
                   '01-Basics-What-is-an-LLM-and-Tokens',
@@ -37,30 +32,38 @@ jobs:
                   '09-Milestone-Chat-With-Your-Data-RAG',
                   '10-Agents-Function-Calling-Basics',
                   '11-Agents-Building-a-Web-Search-Tool',
-                  '12-Agents-Multi-Agent-Collaboration',
-                  '13-Automation-AI-Browser-Control',
-                  '14-Milestone-The-Ultimate-Autonomous-Assistant'
+                  '12-Agents-Multi-Agent-Collaboration'
               ]
 
+              # FIND NEXT TOPIC
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
               if not next_topic: return
+
+              # --- HUMAN BEHAVIOR OVERRIDE ---
+              # If we haven't even started (Topic 01), we FORCE it to run.
+              # For later topics, it has a 70% chance to run (2-3 per day).
+              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens':
+                  if random.random() > 0.70:
+                      print('Human behavior: skipping this session.')
+                      return
 
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
-              # 🔄 RETRY LOGIC (Prevents the KeyError: candidates)
               for attempt in range(3):
                   try:
                       resp = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
                       data = resp.json()
+                      # Safety check for API response
+                      if 'candidates' not in data:
+                          print(f'API Warning: {data}')
+                          time.sleep(5)
+                          continue
                       text = data['candidates'][0]['content']['parts'][0]['text']
                       break
-                  except Exception as e:
-                      print(f'Attempt {attempt+1} failed: {e}. Retrying...')
-                      time.sleep(10)
-              else:
-                  print('API failed after 3 attempts.')
-                  return
+                  except:
+                      time.sleep(5)
+              else: return
 
               def get_tag(tag):
                   m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
@@ -74,25 +77,24 @@ jobs:
               with open(f'{next_topic}/LEARN.md', 'w') as f: 
                   f.write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
 
-              # --- README BUILDER ---
-              toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Fast-Track Syllabus\n\n'
+              # UPDATE README
+              toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
               for topic in curriculum:
                   if os.path.exists(topic):
-                      d = 'Lesson Complete.'
+                      d = 'Explore module.'
                       try:
                           with open(f'{topic}/LEARN.md', 'r') as f:
-                              lns = f.readlines()
+                          lns = f.readlines()
                               if len(lns) > 2: d = lns[2].strip().replace(\"**\", \"\")
                       except: pass
                       toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
-                      with open('README.md', 'w') as f: f.write(toc)
 
-              # --- STEALTH COMMIT ---
+              with open('README.md', 'w') as f: f.write(toc)
+
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
-              msg = random.choice([f'Update: {title}', f'Feature: {next_topic}', f'Completed {title} module'])
-              subprocess.run(['git', 'commit', '-m', msg])
+              subprocess.run(['git', 'commit', '-m', f'Module: {title}'])
               subprocess.run(['git', 'push'])
           run()
           "
