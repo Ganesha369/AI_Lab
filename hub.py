@@ -1,67 +1,73 @@
 import streamlit as st
 import os
-import importlib.util
 
-# 1. Setup the Page Configuration
-st.set_page_config(
-    page_title="AI Zero-to-Hero Academy", 
-    page_icon="🤖", 
-    layout="wide"
-)
+# --- PAGE CONFIG ---
+st.set_page_config(page_title="AI Zero-to-Hero Academy", page_icon="🤖", layout="wide")
 
-# 2. Get the specific project path from the URL (e.g., ?path=01-Basics.../main.py)
-query_params = st.query_params
-target_path = query_params.get("path")
+# --- CUSTOM CSS FOR PROFESSIONAL LOOK ---
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    .stMarkdown h1 { color: #4285F4; font-family: 'Helvetica Neue', sans-serif; }
+    .module-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #4285F4;
+        margin-bottom: 10px;
+    }
+    </style>
+    """, unsafe_allow_status_code=True)
 
-# 3. Sidebar Navigation
-with st.sidebar:
-    st.title("🤖 AI Academy Hub")
-    if target_path:
-        if st.button("🏠 Back to Main Menu"):
-            st.query_params.clear()
-            st.rerun()
-    st.markdown("---")
-    st.markdown("*A Google-level curriculum taking you from absolute beginner to AI Architect.*")
+# --- HEADER ---
+st.title("🤖 AI Zero-to-Hero Academy")
+st.caption("A Google-level curriculum taking you from absolute beginner to AI Architect.")
 
-# 4. Logic to run the selected project OR show the Homepage
-if target_path and os.path.exists(target_path):
-    # If the URL has a path, dynamically load and run that specific main.py
-    module_name = target_path.replace("/", "_").replace(".py", "")
-    spec = importlib.util.spec_from_file_location(module_name, target_path)
-    module = importlib.util.module_from_spec(spec)
+# --- SIDEBAR NAVIGATION ---
+st.sidebar.header("📚 Curriculum Progress")
+
+# Define the full curriculum (must match your Github Action list)
+curriculum = [
+    '01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', 
+    '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', 
+    '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', 
+    '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', 
+    '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', 
+    '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration'
+]
+
+# Detect completed modules
+completed = [t for t in curriculum if os.path.exists(t)]
+progress = len(completed) / len(curriculum)
+
+# Progress Bar
+st.sidebar.progress(progress)
+st.sidebar.write(f"Overall Progress: {int(progress*100)}%")
+
+# Sidebar Menu
+selected_module = st.sidebar.selectbox("Jump to Module:", ["🏠 Home"] + completed)
+
+# --- MAIN CONTENT ---
+if selected_module == "🏠 Home":
+    st.subheader("Welcome to your AI Lab")
+    st.write("This lab is updated daily by an autonomous AI agent.")
     
-    try:
-        spec.loader.exec_module(module)
-    except Exception as e:
-        st.error(f"⚠️ Error running the AI app: {e}")
-        st.info("The AI might have generated a bug. Check the code in the repository!")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.info(f"✅ Modules Completed: {len(completed)}")
+    with col2:
+        st.warning(f"🚀 Next Topic: {curriculum[len(completed)] if len(completed) < len(curriculum) else 'All Complete!'}")
+
+    st.markdown("### 📖 Syllabus Overview")
+    for topic in curriculum:
+        status = "✅" if topic in completed else "⏳"
+        st.markdown(f"<div class='module-card'>{status} <b>{topic.replace('-', ' ')}</b></div>", unsafe_allow_status_code=True)
 
 else:
-    # 5. The Homepage (Shown if no specific link was clicked)
-    st.title("🎓 AI Zero-to-Hero Academy: Live Playground")
-    st.markdown("> Welcome! When you click a [🚀 RUN LIVE ON STREAMLIT] link in the GitHub README, the AI app will load here automatically.")
-    st.markdown("---")
-    
-    st.subheader("📚 Available AI Applications")
-    
-    # Dynamically scan the repository for completed modules
-    folders = [f for f in sorted(os.listdir('.')) if os.path.isdir(f) and not f.startswith('.')]
-    apps_found = False
-    
-    for folder in folders:
-        if os.path.exists(f"{folder}/main.py"):
-            apps_found = True
-            display_name = folder.replace("-", " ")
-            
-            # Create a card-like layout for each app
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                st.markdown(f"{display_name}")
-            with col2:
-                if st.button("Launch App 🚀", key=folder):
-                    st.query_params["path"] = f"{folder}/main.py"
-                    st.rerun()
-            st.markdown("---")
-            
-    if not apps_found:
-        st.info("⏳ The AI Professor is building the first module. Check back soon!")
+    # Logic to load the specific module's main.py
+    st.button("⬅️ Back to Home", on_click=lambda: st.write("Navigating..."))
+    try:
+        path = os.path.join(selected_module, "main.py")
+        exec(open(path).read())
+    except Exception as e:
+        st.error(f"Error loading module: {e}")
