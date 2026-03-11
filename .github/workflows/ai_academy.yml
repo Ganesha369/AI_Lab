@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v4
-      - name: "Automated AI Content & Dependency Manager"
+      - name: "Automated AI Content Generator"
         env:
           API_KEY: ${{ secrets.GEMINI_API_KEY2 }}
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
@@ -22,61 +22,60 @@ jobs:
 
           def run():
               user = 'Ganesha369'
-              curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
+              # THE FULL 30-PROJECT MASTER LIST
+              curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-API-Security-Handling-Secrets', '07-Basics-Understanding-Context-Windows', '08-Milestone-The-Smart-Summarizer-App', '09-Logic-Reasoning-and-Chain-of-Thought', '10-Logic-Self-Correction-Loops', '11-Memory-What-are-Embeddings', '12-Memory-Vector-Databases-Explained', '13-Memory-Similarity-Search-Lab', '14-RAG-Chat-with-your-PDFs', '15-RAG-Web-Search-Integration', '16-RAG-Hybrid-Search-Techniques', '17-Memory-Long-Term-Chat-History', '18-Milestone-Personal-Knowledge-Brain', '19-Vision-Analyzing-Images-and-Charts', '20-Vision-Video-Understanding-AI', '21-Agents-Function-Calling-Basics', '22-Agents-Tools-Calculators-and-APIs', '23-Agents-Building-a-Web-Researcher', '24-Agents-Multi-Task-Orchestrator', '25-Agents-AI-Coding-Assistant', '26-Swarms-Manager-and-Worker-Agents', '27-Swarms-Collaborative-Content-Team', '28-Advanced-Fine-Tuning-Concepts', '29-Advanced-AI-Ethics-and-Safety', '30-Final-Capstone-The-Autonomous-Company']
               
-              next_topic = next((t for t in curr if not os.path.exists(t)), None)
-              if not next_topic: return
+              # Logic for 3-4 concepts: Find next 3 missing modules
+              to_generate = [t for t in curr if not os.path.exists(t)][:3]
+              if not to_generate: return
 
-              # PROMPT UPGRADED FOR BEGINNER DEPTH
-              prompt = f'''Act as a world-class AI Instructor. Write a deep-dive tutorial for {next_topic}.
-              1. Explain the concept for a total beginner using simple analogies.
-              2. Explain why we use specific libraries (like tiktoken, google-generativeai, etc).
-              3. Provide clean, commented Streamlit code.
-              
-              Use these exact tags: 
-              [TITLE]Catchy Title[/TITLE]
-              [DESC]One line summary[/DESC]
-              [LESSON]Full tutorial with emojis, step-by-step guides, and library explanations.[/LESSON]
-              [CODE]The Python Code here[/CODE]'''
-              
-              url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
-              r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-              text = r.json()['candidates'][0]['content']['parts'][0]['text']
+              for next_topic in to_generate:
+                  # Dice probability for human-like timing
+                  if random.random() > 0.85: continue 
+                  
+                  print(f'Creating: {next_topic}')
+                  prompt = f'''Act as a Google Staff AI Engineer teaching students. 
+                  Topic: {next_topic}. 
+                  Requirements:
+                  1. Explain like a mentor at a top tech company. Use real-world software examples.
+                  2. Explain every tool/library (e.g., pip install, import purpose).
+                  3. Include the FULL Python code inside the lesson text so students can read it easily.
+                  
+                  Format using tags:
+                  [TITLE]Professional Title[/TITLE]
+                  [DESC]One-line expert summary[/DESC]
+                  [LESSON]Step-by-step tutorial with code blocks and library explanations.[/LESSON]
+                  [CODE]Production-ready Streamlit code[/CODE]'''
+                  
+                  url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
+                  r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
+                  try:
+                      text = r.json()['candidates'][0]['content']['parts'][0]['text']
+                  except: continue
 
-              def get_tag(tag):
-                  m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
-                  return m.group(1).strip() if m else 'Pending...'
+                  def get_tag(tag):
+                      m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
+                      return m.group(1).strip() if m else 'Processing...'
 
-              title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
-              os.makedirs(next_topic, exist_ok=True)
-              
-              # RE-ADDING THE LIVE LINK TO THE LESSON FILE
-              link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
-              content = f'# {title}\n\n> Summary: {desc}\n\n### [🚀 CLICK HERE TO RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}'
-              
-              open(f'{next_topic}/main.py', 'w').write(code)
-              open(f'{next_topic}/LEARN.md', 'w').write(content)
+                  title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
+                  os.makedirs(next_topic, exist_ok=True)
+                  open(f'{next_topic}/main.py', 'w').write(code)
 
-              # Auto-update requirements.txt
-              libs = {'streamlit', 'google-generativeai'}
-              if 'tiktoken' in code: libs.add('tiktoken')
-              open('requirements.txt', 'w').write('\n'.join(libs))
+                  # Create high-quality LEARN.md with Live Link
+                  link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}'
+                  open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n### [🚀 RUN LIVE RESULT]({link})\n\n---\n\n{lesson}\n\n### 💻 Full Source Code\n`python\n{code}\n```')
 
-              # Aligned Syllabus with Gap
-              toc = '# 🤖 AI Lab Syllabus\n\n'
-              for topic in curr:
-                  if os.path.exists(topic):
-                      try:
-                          with open(f'{topic}/LEARN.md', 'r') as f:
-                              d = f.readlines()[2].replace(\"> Summary: \", \"\").strip()
-                      except: d = 'Module complete.'
-                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
-
+              # Aligned Syllabus Update
+              toc = '# 🤖 AI Academy Syllabus\n\n'
+              for t in curr:
+                  if os.path.exists(t):
+                      toc += f'- [{t.replace(\"-\", \" \")}]({t}/LEARN.md)\n\n<br>\n\n'
               open('README.md', 'w').write(toc)
+
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
-              subprocess.run(['git', 'commit', '-m', f'Module: {title}'])
+              subprocess.run(['git', 'commit', '-m', f'Module: {to_generate[0]} and others'])
               subprocess.run(['git', 'remote', 'set-url', 'origin', f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/AI_Lab.git'])
               subprocess.run(['git', 'push', '--force'])
           run()
