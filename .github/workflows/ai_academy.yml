@@ -25,9 +25,10 @@ jobs:
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
               if not next_topic: return
 
-              # Strategic Probability: Force first lesson, then 70% chance for others
-              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70:
-                  print('Human behavior: skipping session.'); return
+              # FORCE START: No dice roll for the very first lesson
+              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens':
+                  if random.random() > 0.70:
+                      print('Human behavior: skipping session.'); return
 
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
@@ -48,14 +49,16 @@ jobs:
               os.makedirs(next_topic, exist_ok=True)
               link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
 
-              # Flat writing to prevent indentation errors
+              # Flat writing to avoid IndentationErrors seen in previous attempts
               open(f'{next_topic}/main.py', 'w').write(code)
               open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
 
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
               for topic in curriculum:
                   if os.path.exists(topic):
-                      try: lns = open(f'{topic}/LEARN.md').readlines(); d = lns[2].strip().replace(\"**\", \"\") if len(lns)>2 else 'Explore.'
+                      try: 
+                          lns = open(f'{topic}/LEARN.md').readlines()
+                          d = lns[2].strip().replace(\"**\", \"\") if len(lns)>2 else 'Explore.'
                       except: d = 'Module complete.'
                       toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
 
