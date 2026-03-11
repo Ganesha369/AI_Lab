@@ -20,49 +20,24 @@ jobs:
 
           def run():
               user = 'Ganesha369'
-              curriculum = [
-                  '01-Basics-What-is-an-LLM-and-Tokens',
-                  '02-Basics-Prompting-and-Temperature',
-                  '03-Milestone-Interactive-Prompt-Playground',
-                  '04-API-Connecting-Python-to-Gemini',
-                  '05-API-Structuring-JSON-Responses',
-                  '06-Milestone-Custom-AI-Chatbot',
-                  '07-Memory-What-are-Embeddings-and-Vectors',
-                  '08-Memory-Building-a-Simple-Vector-Search',
-                  '09-Milestone-Chat-With-Your-Data-RAG',
-                  '10-Agents-Function-Calling-Basics',
-                  '11-Agents-Building-a-Web-Search-Tool',
-                  '12-Agents-Multi-Agent-Collaboration'
-              ]
-
-              # FIND NEXT TOPIC
+              curriculum = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
+              
               next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
               if not next_topic: return
 
-              # --- HUMAN BEHAVIOR OVERRIDE ---
-              # If we haven't even started (Topic 01), we FORCE it to run.
-              # For later topics, it has a 70% chance to run (2-3 per day).
-              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens':
-                  if random.random() > 0.70:
-                      print('Human behavior: skipping this session.')
-                      return
+              # Strategic Probability: Force first lesson, then 70% chance for others
+              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70:
+                  print('Human behavior: skipping session.'); return
 
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
-              for attempt in range(3):
+              for _ in range(3):
                   try:
-                      resp = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-                      data = resp.json()
-                      # Safety check for API response
-                      if 'candidates' not in data:
-                          print(f'API Warning: {data}')
-                          time.sleep(5)
-                          continue
-                      text = data['candidates'][0]['content']['parts'][0]['text']
+                      r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
+                      text = r.json()['candidates'][0]['content']['parts'][0]['text']
                       break
-                  except:
-                      time.sleep(5)
+                  except: time.sleep(5)
               else: return
 
               def get_tag(tag):
@@ -73,24 +48,18 @@ jobs:
               os.makedirs(next_topic, exist_ok=True)
               link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
 
-              with open(f'{next_topic}/main.py', 'w') as f: f.write(code)
-              with open(f'{next_topic}/LEARN.md', 'w') as f: 
-                  f.write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
+              # Flat writing to prevent indentation errors
+              open(f'{next_topic}/main.py', 'w').write(code)
+              open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
 
-              # UPDATE README
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
               for topic in curriculum:
                   if os.path.exists(topic):
-                      d = 'Explore module.'
-                      try:
-                          with open(f'{topic}/LEARN.md', 'r') as f:
-                          lns = f.readlines()
-                              if len(lns) > 2: d = lns[2].strip().replace(\"**\", \"\")
-                      except: pass
+                      try: lns = open(f'{topic}/LEARN.md').readlines(); d = lns[2].strip().replace(\"**\", \"\") if len(lns)>2 else 'Explore.'
+                      except: d = 'Module complete.'
                       toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
 
-              with open('README.md', 'w') as f: f.write(toc)
-
+              open('README.md', 'w').write(toc)
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
