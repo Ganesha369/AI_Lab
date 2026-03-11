@@ -2,7 +2,7 @@ name: AI_Zero_to_Hero_Academy
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4,9,15,20 * * *" # Runs 4 times a day (Morning, Afternoon, Evening, Night)
+    - cron: "0 4,9,15,20 * * *" # 4 Times daily
 
 jobs:
   build:
@@ -16,18 +16,15 @@ jobs:
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
           python3 -c "
-          import requests, os, subprocess, re, random
-          from datetime import datetime
+          import requests, os, subprocess, re, random, time
 
           def run():
-              # --- HUMAN BEHAVIOR LOGIC ---
-              # We run 4 times a day. 60% chance each time = ~2.4 concepts daily.
-              if random.random() > 0.6:
-                  print('Taking a break this session.')
+              # 🎲 Strategic Probability: ~65% success rate for 2-3 posts/day
+              if random.random() > 0.65:
+                  print('Human is busy with SDE work. Skipping this session.')
                   return
 
               user = 'Ganesha369'
-              # THE FULL FAST-TRACK CURRICULUM
               curriculum = [
                   '01-Basics-What-is-an-LLM-and-Tokens',
                   '02-Basics-Prompting-and-Temperature',
@@ -51,8 +48,19 @@ jobs:
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Detailed Lesson Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
-              resp = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-              text = resp.json()['candidates'][0]['content']['parts'][0]['text']
+              # 🔄 RETRY LOGIC (Prevents the KeyError: candidates)
+              for attempt in range(3):
+                  try:
+                      resp = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
+                      data = resp.json()
+                      text = data['candidates'][0]['content']['parts'][0]['text']
+                      break
+                  except Exception as e:
+                      print(f'Attempt {attempt+1} failed: {e}. Retrying...')
+                      time.sleep(10)
+              else:
+                  print('API failed after 3 attempts.')
+                  return
 
               def get_tag(tag):
                   m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
@@ -66,7 +74,7 @@ jobs:
               with open(f'{next_topic}/LEARN.md', 'w') as f: 
                   f.write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}')
 
-              # --- PROFESSIONAL README GENERATION ---
+              # --- README BUILDER ---
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Fast-Track Syllabus\n\n'
               for topic in curriculum:
                   if os.path.exists(topic):
@@ -77,14 +85,13 @@ jobs:
                               if len(lns) > 2: d = lns[2].strip().replace(\"**\", \"\")
                       except: pass
                       toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
-
-              with open('README.md', 'w') as f: f.write(toc)
+                      with open('README.md', 'w') as f: f.write(toc)
 
               # --- STEALTH COMMIT ---
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
-              msg = random.choice([f'Lesson: {title}', f'Feature: {next_topic}', f'Completed {title} module'])
+              msg = random.choice([f'Update: {title}', f'Feature: {next_topic}', f'Completed {title} module'])
               subprocess.run(['git', 'commit', '-m', msg])
               subprocess.run(['git', 'push'])
           run()
