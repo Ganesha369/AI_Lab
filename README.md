@@ -36,9 +36,21 @@
 
 <br>
 
+- [07 Basics Understanding Context Windows](07-Basics-Understanding-Context-Windows/LEARN.md)
+  *Learn about the "memory limit" of Large Language Models (LLMs). We explore the Context Window—the specific amount of information an AI can process in a single go—using the analogy of a workspace and a real-world look at how Google handles massive data.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=07-Basics-Understanding-Context-Windows)
+
+<br>
+
 - [08 Milestone The Smart Summarizer App](08-Milestone-The-Smart-Summarizer-App/LEARN.md)
   *In this milestone, you will build an AI-powered application that takes long, complex articles and condenses them into short, digestible bullet points. This tool solves "Information Overload" by acting as a personal filter for your brain.*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=08-Milestone-The-Smart-Summarizer-App)
+
+<br>
+
+- [10 Logic Self Correction Loops](10-Logic-Self-Correction-Loops/LEARN.md)
+  *In AI and software engineering, a **Self-Correction Loop** is a process where a system reviews its own output, identifies errors against a set of rules, and tries again. The "10" represents a threshold—allowing the system up to 10 attempts to perfect its logic before finalizing the result.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=10-Logic-Self-Correction-Loops)
 
 <br>
 
