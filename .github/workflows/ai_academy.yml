@@ -22,25 +22,17 @@ jobs:
 
           def run():
               user = 'Ganesha369'
-              curriculum = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
+              curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
               
-              next_topic = next((t for t in curriculum if not os.path.exists(t)), None)
+              next_topic = next((t for t in curr if not os.path.exists(t)), None)
               if not next_topic: return
-
-              # Strategic logic for 2-3 concepts daily
-              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70:
-                  print('Human behavior simulation: skipping session.'); return
+              if next_topic != '01-Basics-What-is-an-LLM-and-Tokens' and random.random() > 0.70: return
 
               prompt = f'Act as a Google Staff AI Engineer. Topic: {next_topic}. Level 0-4. [TITLE]..[/TITLE][DESC]..[/DESC][LESSON]..[/LESSON][CODE]..[/CODE]. Ensure code is Streamlit compatible.'
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
               
-              for _ in range(3):
-                  try:
-                      r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-                      text = r.json()['candidates'][0]['content']['parts'][0]['text']
-                      break
-                  except: time.sleep(10)
-              else: return
+              r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
+              text = r.json()['candidates'][0]['content']['parts'][0]['text']
 
               def get_tag(tag):
                   m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
@@ -49,38 +41,21 @@ jobs:
               title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
               os.makedirs(next_topic, exist_ok=True)
               
-              # Save main code and documentation
               open(f'{next_topic}/main.py', 'w').write(code)
               link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
               open(f'{next_topic}/LEARN.md', 'w').write(f'# {title}\n\n{desc}\n\n[🚀 RUN LIVE]({link})\n\n---\n\n{lesson}')
 
-              # --- AUTOMATIC DEPENDENCY INSTALLER ---
-              # This block scans the AI code for 'import' or 'from' and updates requirements.txt
-              found_libs = re.findall(r'^(?:import|from)\s+([a-zA-Z0-9_]+)', code, re.MULTILINE)
-              standard_libs = {'os', 'sys', 're', 'time', 'random', 'json', 'math', 'subprocess', 'datetime', 'base64'}
-              reqs = {'streamlit', 'google-generativeai'}
-              for lib in found_libs:
-                  if lib not in standard_libs:
-                      # Map common import names to pip names
-                      pkg = 'scikit-learn' if lib == 'sklearn' else lib
-                      reqs.add(pkg)
-              
-              with open('requirements.txt', 'w') as f:
-                  f.write('\n'.join(sorted(reqs)))
+              libs = {'streamlit', 'google-generativeai'}
+              if 'tiktoken' in code: libs.add('tiktoken')
+              if 'pandas' in code: libs.add('pandas')
+              open('requirements.txt', 'w').write('\n'.join(libs))
 
-              # Syllabus update logic
               toc = '# 🤖 AI From Scratch Academy\n\n## 📚 Syllabus\n\n'
-              for topic in curriculum:
-              if os.path.exists(topic):
-                      try: 
-                          lns = open(f'{topic}/LEARN.md').readlines()
-                          d = lns[2].strip().replace(\"**\", \"\") if len(lns)>2 else 'Explore.'
-                      except: d = 'Module complete.'
-                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
+              for topic in curr:
+                  if os.path.exists(topic):
+                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n\n'
 
               open('README.md', 'w').write(toc)
-              
-              # Git push using your specific MY_GITHUB_TOKEN
               subprocess.run(['git', 'config', 'user.name', user])
               subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
               subprocess.run(['git', 'add', '.'])
