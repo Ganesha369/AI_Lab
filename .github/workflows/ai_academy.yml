@@ -12,72 +12,72 @@ jobs:
     steps:
       - name: "Checkout Code"
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetches all history for better pushing
-      - name: "Automated AI Content Generation"
+      - name: "Automated AI Content & Dependency Manager"
         env:
           API_KEY: ${{ secrets.GEMINI_API_KEY2 }}
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
           python3 -c "
-          import requests, os, subprocess, re, sys
+          import requests, os, subprocess, re, random, time
 
           def run():
               user = 'Ganesha369'
-              repo = 'AI_Lab'
               curr = ['01-Basics-What-is-an-LLM-and-Tokens', '02-Basics-Prompting-and-Temperature', '03-Milestone-Interactive-Prompt-Playground', '04-API-Connecting-Python-to-Gemini', '05-API-Structuring-JSON-Responses', '06-Milestone-Custom-AI-Chatbot', '07-Memory-What-are-Embeddings-and-Vectors', '08-Memory-Building-a-Simple-Vector-Search', '09-Milestone-Chat-With-Your-Data-RAG', '10-Agents-Function-Calling-Basics', '11-Agents-Building-a-Web-Search-Tool', '12-Agents-Multi-Agent-Collaboration']
               
-              # LOG: Check what exists
-              print(f'Existing folders: {next(os.walk(\".\"))[1]}')
-              
               next_topic = next((t for t in curr if not os.path.exists(t)), None)
-              if not next_topic: 
-                  print('Success: All modules already exist.'); return
+              if not next_topic: return
 
-              print(f'Attempting to generate: {next_topic}')
-
-              prompt = f'Write a technical AI lesson for {next_topic}. Use tags: [TITLE]..[/TITLE], [DESC]..[/DESC], [LESSON]..[/LESSON], [CODE]..[/CODE].'
+              # PROMPT UPGRADED FOR BEGINNER DEPTH
+              prompt = f'''Act as a world-class AI Instructor. Write a deep-dive tutorial for {next_topic}.
+              1. Explain the concept for a total beginner using simple analogies.
+              2. Explain why we use specific libraries (like tiktoken, google-generativeai, etc).
+              3. Provide clean, commented Streamlit code.
+              
+              Use these exact tags: 
+              [TITLE]Catchy Title[/TITLE]
+              [DESC]One line summary[/DESC]
+              [LESSON]Full tutorial with emojis, step-by-step guides, and library explanations.[/LESSON]
+              [CODE]The Python Code here[/CODE]'''
+              
               url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={os.getenv(\"API_KEY\")}'
-              
               r = requests.post(url, json={'contents': [{'parts':[{'text': prompt}]}]})
-              res = r.json()
-              
-              if 'candidates' not in res:
-                  print(f'CRITICAL API ERROR: {res}')
-                  sys.exit(1) # Force Action to show RED fail if API fails
-              
-              text = res['candidates'][0]['content']['parts'][0]['text']
+              text = r.json()['candidates'][0]['content']['parts'][0]['text']
 
               def get_tag(tag):
                   m = re.search(fr'\[{tag}\](.*?)\[/{tag}\]', text, re.DOTALL)
                   return m.group(1).strip() if m else 'Pending...'
 
               title, desc, lesson, code = get_tag('TITLE'), get_tag('DESC'), get_tag('LESSON'), get_tag('CODE')
-              
-              # CREATE FILES
               os.makedirs(next_topic, exist_ok=True)
-              with open(f'{next_topic}/main.py', 'w') as f: f.write(code)
-              with open(f'{next_topic}/LEARN.md', 'w') as f: f.write(f'# {title}\n\n{desc}\n\n{lesson}')
               
-              print(f'Files created for {next_topic}. Starting Git Push...')
+              # RE-ADDING THE LIVE LINK TO THE LESSON FILE
+              link = f'https://ganesha-ai-lab.streamlit.app/?path={next_topic}/main.py'
+              content = f'# {title}\n\n> Summary: {desc}\n\n### [🚀 CLICK HERE TO RUN LIVE ON STREAMLIT]({link})\n\n---\n\n{lesson}'
+              
+              open(f'{next_topic}/main.py', 'w').write(code)
+              open(f'{next_topic}/LEARN.md', 'w').write(content)
 
-              # GIT PUSH COMMANDS
-              try:
-                  subprocess.run(['git', 'config', 'user.name', user], check=True)
-                  subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'], check=True)
-                  subprocess.run(['git', 'add', '--all'], check=True)
-                  subprocess.run(['git', 'commit', '-m', f'Add: {next_topic}'], check=True)
-                  
-                  # Set remote with Token
-                  remote_url = f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/{repo}.git'
-                  subprocess.run(['git', 'remote', 'set-url', 'origin', remote_url], check=True)
-                  
-                  # Push to main
-                  subprocess.run(['git', 'push', 'origin', 'main'], check=True)
-                  print('Git push successful!')
-              except Exception as e:
-                  print(f'GIT ERROR: {e}')
-                  sys.exit(1)
+              # Auto-update requirements.txt
+              libs = {'streamlit', 'google-generativeai'}
+              if 'tiktoken' in code: libs.add('tiktoken')
+              open('requirements.txt', 'w').write('\n'.join(libs))
 
+              # Aligned Syllabus with Gap
+              toc = '# 🤖 AI Lab Syllabus\n\n'
+              for topic in curr:
+                  if os.path.exists(topic):
+                      try:
+                          with open(f'{topic}/LEARN.md', 'r') as f:
+                              d = f.readlines()[2].replace(\"> Summary: \", \"\").strip()
+                      except: d = 'Module complete.'
+                      toc += f'- [{topic.replace(\"-\", \" \")}]({topic}/LEARN.md)\n  *{d}*\n\n<br>\n\n'
+
+              open('README.md', 'w').write(toc)
+              subprocess.run(['git', 'config', 'user.name', user])
+              subprocess.run(['git', 'config', 'user.email', 'ganesha.am.369@gmail.com'])
+              subprocess.run(['git', 'add', '.'])
+              subprocess.run(['git', 'commit', '-m', f'Module: {title}'])
+              subprocess.run(['git', 'remote', 'set-url', 'origin', f'https://x-access-token:{os.getenv(\"GH_TOKEN\")}@github.com/{user}/AI_Lab.git'])
+              subprocess.run(['git', 'push', '--force'])
           run()
           "
