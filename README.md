@@ -96,9 +96,33 @@
 
 <br>
 
+- [17 Memory Long Term Chat History](17-Memory-Long-Term-Chat-History/LEARN.md)
+  *Standard AI chatbots have "goldfish memory"—they forget everything once you refresh the page. This lesson teaches you how to give your AI a "permanent diary" using Long-Term Memory, allowing it to remember user preferences, past names, and old conversations across different sessions.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=17-Memory-Long-Term-Chat-History)
+
+<br>
+
 - [18 Milestone Personal Knowledge Brain](18-Milestone-Personal-Knowledge-Brain/LEARN.md)
   *Learn how to build a "Second Brain"—a digital system that uses Artificial Intelligence to store, organize, and retrieve every piece of information you've ever learned, making you "forget-proof."*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=18-Milestone-Personal-Knowledge-Brain)
+
+<br>
+
+- [19 Vision Analyzing Images and Charts](19-Vision-Analyzing-Images-and-Charts/LEARN.md)
+  *In this lesson, you will learn how "Vision" models (Multimodal AI) bridge the gap between pixels and language. You'll discover how AI can describe photos, interpret complex business charts, and even troubleshoot code from a screenshot.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=19-Vision-Analyzing-Images-and-Charts)
+
+<br>
+
+- [20 Vision Video Understanding AI](20-Vision-Video-Understanding-AI/LEARN.md)
+  *Video Understanding AI (also known as Vision-Video Understanding) is the evolution of computer vision. While traditional AI can identify an object in a picture, Video Understanding AI analyzes movement, intent, and sequences across time. This lesson covers how AI evolves from seeing "frames" to understanding "stories."*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=20-Vision-Video-Understanding-AI)
+
+<br>
+
+- [21 Agents Function Calling Basics](21-Agents-Function-Calling-Basics/LEARN.md)
+  *In this lesson, you will learn the "bridge" between thinking and doing. While Large Language Models (LLMs) are incredibly smart at talking, they are "locked in a room" with no access to the outside world. **Function Calling** is the mechanism that gives the LLM "hands," allowing it to interact with databases, APIs, and software tools to perform real-world tasks.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=21-Agents-Function-Calling-Basics)
 
 <br>
 
