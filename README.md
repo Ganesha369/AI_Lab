@@ -48,9 +48,27 @@
 
 <br>
 
+- [09 Logic Reasoning and Chain of Thought](09-Logic-Reasoning-and-Chain-of-Thought/LEARN.md)
+  *In this lesson, you will learn how to guide an AI to solve complex problems by breaking them down into logical steps. Instead of jumping straight to a conclusion—which often leads to errors—Logic and Chain-of-Thought (CoT) techniques force the model to "show its work," leading to higher accuracy and more reliable reasoning.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=09-Logic-Reasoning-and-Chain-of-Thought)
+
+<br>
+
 - [10 Logic Self Correction Loops](10-Logic-Self-Correction-Loops/LEARN.md)
   *In AI and software engineering, a **Self-Correction Loop** is a process where a system reviews its own output, identifies errors against a set of rules, and tries again. The "10" represents a threshold—allowing the system up to 10 attempts to perfect its logic before finalizing the result.*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=10-Logic-Self-Correction-Loops)
+
+<br>
+
+- [12 Memory Vector Databases Explained](12-Memory-Vector-Databases-Explained/LEARN.md)
+  *A Vector Database is a specialized storage system designed to handle "embeddings"—numerical representations of data (text, images, or audio) that capture their meaning. Unlike traditional databases that look for exact keyword matches, vector databases look for "similarity," allowing AI to have a long-term memory.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=12-Memory-Vector-Databases-Explained)
+
+<br>
+
+- [13 Memory Similarity Search Lab](13-Memory-Similarity-Search-Lab/LEARN.md)
+  *This lab teaches you how AI systems "remember" and find information. Instead of searching for exact words (like a Ctrl+F search), Similarity Search allows AI to find information based on **meaning**. You will learn how to turn text into mathematical coordinates (Embeddings) and find the "closest" answers in a Vector Database.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=13-Memory-Similarity-Search-Lab)
 
 <br>
 
