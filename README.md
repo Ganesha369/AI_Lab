@@ -60,6 +60,12 @@
 
 <br>
 
+- [11 Memory What are Embeddings](11-Memory-What-are-Embeddings/LEARN.md)
+  *In this lesson, we explore the concept of **Embeddings**—the secret sauce that allows Artificial Intelligence to understand the "meaning" of words rather than just the characters. You will learn how computers turn concepts into numbers and how they use those numbers to find relationships between different pieces of data.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=11-Memory-What-are-Embeddings)
+
+<br>
+
 - [12 Memory Vector Databases Explained](12-Memory-Vector-Databases-Explained/LEARN.md)
   *A Vector Database is a specialized storage system designed to handle "embeddings"—numerical representations of data (text, images, or audio) that capture their meaning. Unlike traditional databases that look for exact keyword matches, vector databases look for "similarity," allowing AI to have a long-term memory.*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=12-Memory-Vector-Databases-Explained)
@@ -72,6 +78,12 @@
 
 <br>
 
+- [14 RAG Chat with your PDFs](14-RAG-Chat-with-your-PDFs/LEARN.md)
+  *Learn how to build a Retrieval-Augmented Generation (RAG) system. This lesson covers the concept of giving an AI a "brain upgrade" using your own documents, using a simple open-book exam analogy and a real-world tech example.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=14-RAG-Chat-with-your-PDFs)
+
+<br>
+
 - [15 RAG Web Search Integration](15-RAG-Web-Search-Integration/LEARN.md)
   *Standard RAG (Retrieval-Augmented Generation) is limited to the documents you give it. This lesson teaches you how to integrate real-time Web Search so your AI can answer questions about breaking news, current events, and live data using tools like LangChain and Tavily.*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=15-RAG-Web-Search-Integration)
@@ -81,6 +93,12 @@
 - [16 RAG Hybrid Search Techniques](16-RAG-Hybrid-Search-Techniques/LEARN.md)
   *Hybrid Search is a technique in Retrieval-Augmented Generation (RAG) that combines **Keyword Search** (looking for exact words) and **Semantic Search** (looking for meaning). This ensures that if a user searches for "The Dark Knight," the system finds the exact title AND understands they are looking for "Batman movies."*
   [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=16-RAG-Hybrid-Search-Techniques)
+
+<br>
+
+- [18 Milestone Personal Knowledge Brain](18-Milestone-Personal-Knowledge-Brain/LEARN.md)
+  *Learn how to build a "Second Brain"—a digital system that uses Artificial Intelligence to store, organize, and retrieve every piece of information you've ever learned, making you "forget-proof."*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=18-Milestone-Personal-Knowledge-Brain)
 
 <br>
 
