@@ -72,3 +72,15 @@
 
 <br>
 
+- [15 RAG Web Search Integration](15-RAG-Web-Search-Integration/LEARN.md)
+  *Standard RAG (Retrieval-Augmented Generation) is limited to the documents you give it. This lesson teaches you how to integrate real-time Web Search so your AI can answer questions about breaking news, current events, and live data using tools like LangChain and Tavily.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=15-RAG-Web-Search-Integration)
+
+<br>
+
+- [16 RAG Hybrid Search Techniques](16-RAG-Hybrid-Search-Techniques/LEARN.md)
+  *Hybrid Search is a technique in Retrieval-Augmented Generation (RAG) that combines **Keyword Search** (looking for exact words) and **Semantic Search** (looking for meaning). This ensures that if a user searches for "The Dark Knight," the system finds the exact title AND understands they are looking for "Batman movies."*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=16-RAG-Hybrid-Search-Techniques)
+
+<br>
+
