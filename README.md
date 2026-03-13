@@ -126,3 +126,27 @@
 
 <br>
 
+- [22 Agents Tools Calculators and APIs](22-Agents-Tools-Calculators-and-APIs/LEARN.md)
+  *Large Language Models (LLMs) are like brilliant professors who have read every book but are locked in a room without a clock, a calculator, or internet access. "Agents" are the framework that allows these professors to use tools—like calculators for math and APIs for real-time data—to solve complex, real-world tasks.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=22-Agents-Tools-Calculators-and-APIs)
+
+<br>
+
+- [23 Agents Building a Web Researcher](23-Agents-Building-a-Web-Researcher/LEARN.md)
+  *Learn how to build an automated research team using AI agents. This lesson covers how multiple specialized agents (Searcher and Writer) collaborate to browse the internet, synthesize information, and create comprehensive reports using CrewAI and Streamlit.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=23-Agents-Building-a-Web-Researcher)
+
+<br>
+
+- [24 Agents Multi Task Orchestrator](24-Agents-Multi-Task-Orchestrator/LEARN.md)
+  *The **Multi-Task Orchestrator** is a design pattern in AI where a central "Master Agent" receives a complex goal, breaks it down into smaller sub-tasks, and delegates those tasks to specialized "Worker Agents." Instead of one AI trying to do everything poorly, this system uses multiple specialized AIs to do specific things perfectly.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=24-Agents-Multi-Task-Orchestrator)
+
+<br>
+
+- [25 Agents AI Coding Assistant](25-Agents-AI-Coding-Assistant/LEARN.md)
+  *Learn how to move from a single AI chatbot to a massive "Multi-Agent System" (MAS). Instead of one AI trying to do everything, we use 25 specialized AI agents—each an expert in a tiny niche (like Security, Testing, or Documentation)—to build complex software projects collaboratively.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=25-Agents-AI-Coding-Assistant)
+
+<br>
+
