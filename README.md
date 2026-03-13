@@ -150,3 +150,27 @@
 
 <br>
 
+- [26 Swarms Manager and Worker Agents](26-Swarms-Manager-and-Worker-Agents/LEARN.md)
+  *In this lesson, you will learn how to build a sophisticated AI "Company" using the **Swarms** framework. We will move beyond single-agent bots to a hierarchical system where a **Manager Agent** directs multiple specialized **Worker Agents** to complete complex, multi-step projects.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=26-Swarms-Manager-and-Worker-Agents)
+
+<br>
+
+- [27 Swarms Collaborative Content Team](27-Swarms-Collaborative-Content-Team/LEARN.md)
+  *Imagine if you didn't just have one AI writing for you, but an entire team of specialized AI experts—a researcher, a writer, an editor, and an SEO specialist—all talking to each other to produce a perfect article. This is the "Collaborative Content Team" pattern (often referred to as Swarm #27 in multi-agent frameworks). It moves away from "one-shot" prompting to a structured pipeline where agents collaborate to ensure high-quality output.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=27-Swarms-Collaborative-Content-Team)
+
+<br>
+
+- [28 Advanced Fine Tuning Concepts](28-Advanced-Fine-Tuning-Concepts/LEARN.md)
+  *Basic fine-tuning is like teaching a student to memorize a textbook. **Advanced Fine-Tuning** is like training a specialist to perform surgery using minimal resources, high precision, and human-like judgment. This lesson covers the shift from "retraining everything" to "efficiently adapting" Large Language Models (LLMs) using techniques like LoRA, QLoRA, and RLHF.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=28-Advanced-Fine-Tuning-Concepts)
+
+<br>
+
+- [29 Advanced AI Ethics and Safety](29-Advanced-AI-Ethics-and-Safety/LEARN.md)
+  *As AI systems become more powerful, we must ensure they are fair, transparent, and safe. This lesson covers how to move from "it works" to "it works responsibly," focusing on bias detection, explainability, and safety guardrails.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=29-Advanced-AI-Ethics-and-Safety)
+
+<br>
+
