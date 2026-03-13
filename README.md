@@ -174,3 +174,9 @@
 
 <br>
 
+- [30 Final Capstone The Autonomous Company](30-Final-Capstone-The-Autonomous-Company/LEARN.md)
+  *The ultimate goal of AI integration is the "Autonomous Company"—a business entity where AI agents handle the strategy, operations, marketing, and customer service with minimal human oversight. This capstone explores how to orchestrate multiple AI components into a self-sustaining loop.*
+  [▶️ Live Output](https://ganesha-ai-lab.streamlit.app/?path=30-Final-Capstone-The-Autonomous-Company)
+
+<br>
+
